@@ -9,7 +9,8 @@
 /*
 Structure:
     - LexicalAnalyzer (Scanner) | lex_main()
-    - Parser & CodeGen @TODO  | parser()
+    - Parser | parser()
+    - CodeGen | codegen() @TODO
     - VM (HW1) ** Fix factorial program issues ** | 
 */
 
@@ -502,7 +503,8 @@ int lex_main(void) {
 /* Parser & CodeGen */
 /* ================================================================================== */
 
-// iterate through word_list
+// Recursive Descent Parser
+
 int is_valid_token(wordy check_token) {
     if (check_token.token_type >= 0 && check_token.token_type <= 33) {
         return 1;
@@ -770,6 +772,16 @@ int parser_factor() {
 
 /* ================================================================================== */
 
+
+/* CodeGen */
+/* ================================================================================== */
+
+int codegen(void) {
+    
+    return 0;
+}
+
+/* ================================================================================== */
 
 
 /* VM - pmachine */
