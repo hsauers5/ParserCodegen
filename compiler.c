@@ -802,7 +802,7 @@ void emit(int op, int r, int l, int m, instruction* code) {
 int codegen(void) {
     char * output = "";
     int counter = 0;
-    while (&symbol_table[counter] != NULL) {
+    while (&symbol_table[counter] != NULL && symbol_table[counter].op != 0) {
         char buf[3];
         
         sprintf(buf, "%d", symbol_table[counter].op);
@@ -819,6 +819,9 @@ int codegen(void) {
         
         output = dynamic_strcat(output, "\n");
         printf("%s", output);
+        
+        int bad;
+        //scanf("%d\n", &bad);
     }
     
     FILE * fp;
@@ -1364,11 +1367,17 @@ int vm_main(void) {
 
 int main(void) {
     // printf("Hello world. I work!\n");
+    
+    printf("Lexer\n");
     lex_main();
+    
+    printf("Parser\n");
     parser();
     
+    printf("Codegen\n");
     codegen();
     
+    printf("VM\n");
     vm_main();
     
     free(word_list);
