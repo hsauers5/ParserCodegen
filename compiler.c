@@ -18,6 +18,7 @@ Structure:
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_SYMBOL_TABLE_SIZE 100
 
 /* LexicalAnalyzer */
 /* ================================================================================== */
@@ -503,7 +504,35 @@ int lex_main(void) {
 /* Parser & CodeGen */
 /* ================================================================================== */
 
+ typedef struct {
+     int op; //Opcode
+     int R;
+     int L;  //L
+     int M;  //M
+ } instruction;
+ 
+void emit(int op, int r, int l, int m, instruction* code);
+
 // Recursive Descent Parser
+
+typedef struct { 
+    int kind; 
+    // const = 1, var = 2, proc = 3
+    
+    char name[10];
+    // name up to 11 chars
+    
+    int val; 
+    // number (ASCII value) 
+    
+    int level; 
+    // L level
+    
+    int addr; 
+    // M address
+} symbol; 
+
+instruction symbol_table[MAX_SYMBOL_TABLE_SIZE];
 
 int is_valid_token(wordy check_token) {
     if (check_token.token_type >= 0 && check_token.token_type <= 33) {
@@ -513,6 +542,7 @@ int is_valid_token(wordy check_token) {
     return 0;
 }
 int token_counter = 0;
+
 int get_token(void) {
     wordy val = word_list[token_counter];
     token_counter += 1;
@@ -542,19 +572,7 @@ int parser_factor();
 
 
 int TOKEN;
-int parser(void) {
-    // TOKEN = get_token();
-    
-    /*
-    while (is_valid_token(this_token)) {
-        printf("%d ", this_token.token_type);    
-        parser_program(token);
-        
-        // next token
-        this_token = get_token();
-    }
-    */
-    
+int parser(void) {    
     parser_program();
 }
 
@@ -579,7 +597,7 @@ int parser_block() {
             }
             
             TOKEN = get_token();
-            if (TOKEN != eqsym) {
+            if (TOKEN != eqlsym) {
                 // @TODO error
                 printf("\nError eqsym expected\n");
                 return 0;
@@ -623,34 +641,7 @@ int parser_block() {
         }
         TOKEN = get_token();
     }
-
-    while (TOKEN == procsym) {
-        TOKEN = get_token();
-        if (TOKEN != identsym) {
-            // @TODO error
-            printf("\nError identsym expected\n");
-            return 0;
-        }
-
-        TOKEN = get_token();
-        if (TOKEN != semicolonsym) {
-            // @TODO error
-            printf("\nError semicolonsym expected\n");
-            return 0;
-        }
-
-        TOKEN = get_token();
-
-        parser_block();
-
-        if (TOKEN != semicolonsym) {
-            // @TODO error
-            printf("\nError semicolonsym expected\n");
-            return 0;
-        }
-
-        TOKEN = get_token();
-    }
+    
     parser_statement();
 }
 
@@ -664,15 +655,6 @@ int parser_statement() {
         }
         TOKEN = get_token();
         parser_expression();
-    }
-    else if (TOKEN == callsym) {
-        TOKEN = get_token();
-        if (TOKEN != identsym) {
-            // @TODO error
-            printf("\n Error identsym expected\n");
-            return 0;
-        }
-        TOKEN = get_token();
     }
     else if (TOKEN == beginsym) {
         TOKEN = get_token();
@@ -728,24 +710,50 @@ int parser_condition() {
 }
 
 int parser_expression() {
+    int addop;
     if (TOKEN == plussym || TOKEN == minussym) {
-        TOKEN = get_token();
-    }
-    parser_term();
-    while (TOKEN == plussym || TOKEN == minussym) {
+        addop = TOKEN;
         TOKEN = get_token();
         parser_term();
+        
+        if (addop == minussym) {
+            emit(2, 0, 0, 1, symbol_table); // @TODO 2nd arg is register
+        }
+    } else {
+        parser_term();
+    }
+    
+    while (TOKEN == plussym || TOKEN == minussym) {
+        addop = TOKEN;
+        TOKEN = get_token();
+        parser_term();
+        
+        if (addop == plussym) {
+            emit(2, 0, 0, 2, symbol_table); // @TODO 2nd arg is register
+        } else {
+            emit(2, 0, 0, 3, symbol_table); // @TODO 2nd arg is register
+        }
     }
 }
 
 int parser_term() {
+    int mulop;
     parser_factor();
+    
     while (TOKEN == multsym || TOKEN == slashsym) {
+        mulop = TOKEN;
         TOKEN = get_token();
         parser_factor();
+        
+        if (TOKEN == multsym) {
+            emit(2, 0, 0, 4, symbol_table); // @TODO 2nd arg is register
+        } else {
+            emit(2, 0, 0, 5, symbol_table); // @TODO 2nd arg is register
+        }
     }
 }
 
+// @TODO finish this
 int parser_factor() {
     if (TOKEN == identsym) {
         TOKEN = get_token();
@@ -775,6 +783,20 @@ int parser_factor() {
 
 /* CodeGen */
 /* ================================================================================== */
+int cx = 0;
+void emit(int op, int r, int l, int m, instruction* code) {
+    if (cx > MAX_SYMBOL_TABLE_SIZE) {
+        // @TODO Error too long
+        printf("Error: program is too long. Exiting...");
+        return;
+    } else {
+        code[cx].op = op; 	//opcode
+        code[cx].R = r; // register
+        code[cx].L = l;	// lexicographical level
+        code[cx].M = m;	// modifier
+        cx++;
+    }
+}
 
 int codegen(void) {
     
