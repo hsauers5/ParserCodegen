@@ -814,7 +814,7 @@ int parser_expression() {
         parser_term();
         
         if (addop == minussym) {
-            emit(2, 0, 0, 1, assembly_array); // @TODO 2nd arg is register
+            emit(12, 0, 0, 1, assembly_array); // @TODO 2nd arg is register
         }
     } else {
         parser_term();
@@ -826,9 +826,9 @@ int parser_expression() {
         parser_term();
         
         if (addop == plussym) {
-            emit(2, 0, 0, 2, assembly_array); // @TODO 2nd arg is register
+            emit(13, 0, 0, 2, assembly_array); // @TODO 2nd arg is register
         } else {
-            emit(2, 0, 0, 3, assembly_array); // @TODO 2nd arg is register
+            emit(14, 0, 0, 3, assembly_array); // @TODO 2nd arg is register
         }
     }
 }
@@ -1419,11 +1419,13 @@ int vm_main(void) {
 		printf("Error: Could not locate file.\n");
 		exit(-1);
 	}
+	
 	// record number of operations while reading from input.txt
 	lines_of_text = read_in(fp, text);
 
 	// initialize output one double array
 	output_one = (char **)calloc(lines_of_text, sizeof(char *));
+	
 	// loop to create output one
 	for (i = 0; i < lines_of_text; i++) {
 		output_one[i] = (char *)calloc(1, sizeof(char));
