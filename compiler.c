@@ -1367,6 +1367,8 @@ int main(void) {
     lex_main();
     parser();
     
+    codegen();
+    
     vm_main();
     
     free(word_list);
