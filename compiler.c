@@ -83,12 +83,12 @@ typedef struct {
 } wordy;
 
 typedef enum { 
-    nulsym = 1, identsym, numbersym, plussym, minussym,
-    multsym,  slashsym, oddsym, eqlsym, neqsym, lessym, leqsym,
-    gtrsym, geqsym, lparentsym, rparentsym, commasym, semicolonsym,
-    periodsym, becomessym, beginsym, endsym, ifsym, thensym, 
-    whilesym, dosym, callsym, constsym, varsym, procsym, writesym,
-    readsym , elsesym 
+    nulsym = 1, identsym, numbersym, plussym, minussym,	//1-5
+    multsym,  slashsym, oddsym, eqlsym, neqsym, lessym, leqsym,		//6-12
+    gtrsym, geqsym, lparentsym, rparentsym, commasym, semicolonsym,	//13-18
+    periodsym, becomessym, beginsym, endsym, ifsym, thensym, //19-24
+    whilesym, dosym, callsym, constsym, varsym, procsym, writesym,	//25-31
+    readsym , elsesym 	//32-33
 } token_type;
 
 char * reserved_words[] = {
