@@ -20,6 +20,60 @@ Structure:
 
 #define MAX_SYMBOL_TABLE_SIZE 100
 
+/* Catch Errors & Exit Program for Parser */
+
+void error(int err) {
+    int exit_program = 0;
+    
+    switch(err) {
+        case 1:
+            // period expected        
+            printf("\n Error 001, period expected.\n");
+            break;
+        case 2:
+            printf("\nError 002, identsym expected\n");
+            break;
+        case 3:
+            printf("\nError 003 eqsym expected\n");
+            break;
+        case 4:
+            printf("\nError 004 number expected\n");
+            break;
+        case 5:
+            printf("\nError 005 semicolonsym expected\n");
+            break;
+        case 6:
+            printf("\nError 006 becomessym expected\n");
+            break;
+        case 7:
+            printf("\nError 007 endsym expected\n");
+            break;
+        case 8:
+            printf("\nError 008 thensym expected\n");
+            break;
+        case 9:
+            printf("\nError 009 dosym expected\n");
+            break;
+        case 10:
+            printf("\nError 010 relation expected\n");
+            break;
+        case 11:
+            printf("\nError 011 rparensym expected\n");
+            break;
+        case 12:
+            printf("\nError 012 Factor conditions not met\n");
+            break;
+        case 14:
+            printf("\nError 013 program too long\n");
+            break;
+            
+        if (exit_program) {
+            printf("Exiting...\n");
+            exit(-1);
+        }
+    }
+}
+
 /* LexicalAnalyzer */
 /* ================================================================================== */
 
@@ -582,8 +636,7 @@ int parser_program() {
     parser_block();
     
     if (TOKEN != periodsym) {
-        // @TODO ERROR - Error number xxx, period expected
-        printf("\n Error 001, period expected.\n");
+            error(001);
     }
 }
 
@@ -592,22 +645,22 @@ int parser_block() {
         do {
             TOKEN = get_token();
             if (TOKEN != identsym) {
-                // @TODO error
-                printf("\nError identsym expected\n");
+                
+                error(002);
                 return 0;
             }
             
             TOKEN = get_token();
             if (TOKEN != eqlsym) {
-                // @TODO error
-                printf("\nError eqsym expected\n");
+                
+                error(003);
                 return 0;
             }
             
             TOKEN = get_token();
             if (TOKEN != numbersym) {
-                // @TODO error
-                printf("\nError number expected\n");
+                
+                error(004);
                 return 0;
             }
             
@@ -615,8 +668,8 @@ int parser_block() {
         } while (TOKEN == commasym);
         
         if (TOKEN != semicolonsym) {
-            // @TODO error
-            printf("\nError semicolonsym expected\n");
+            
+                error(005);
             return 0;
         }
         
@@ -627,7 +680,7 @@ int parser_block() {
 		do {
 			TOKEN = get_token();
 			if (TOKEN != identsym) {
-	          printf("\nError identsym expected\n");
+                error(002);
 				return 0;
 			}
             
@@ -635,8 +688,8 @@ int parser_block() {
 		} while (TOKEN == commasym);
 
 		if (TOKEN != semicolonsym) {
-				    // @TODO error
-				    printf("\nError semicolonsym expected\n");
+				    
+                    error(005);
 				    return 0;
 				}
 				
@@ -647,8 +700,8 @@ int parser_block() {
         do {
             TOKEN = get_token();
             if (TOKEN != identsym) {
-                // @TODO error
-                printf("Error expected identsym\n");
+                
+                error(002);
                 return 0;
             }
 
@@ -656,8 +709,8 @@ int parser_block() {
         } while (TOKEN == commasym);
 
         if (TOKEN != semicolonsym) {
-            // @TODO error
-            printf("\nError semicolonsym expected\n");
+            
+            error(005);
             return 0;
         }
         TOKEN = get_token();
@@ -670,8 +723,8 @@ int parser_statement() {
     if (TOKEN == identsym) {
         TOKEN = get_token();
         if (TOKEN != becomessym) {
-            // @TODO error
-            printf("\nError: expected becomessym\n");
+            
+            error(006);
             return 0;
         }
         TOKEN = get_token();
@@ -685,8 +738,8 @@ int parser_statement() {
             parser_statement();
         }
         if (TOKEN != endsym) {
-            // @TODO error
-            printf("\n Error endsym expected\n");
+            
+            error(007);
             return 0;
         }
     }
@@ -694,8 +747,8 @@ int parser_statement() {
         TOKEN = get_token();
         parser_condition();
         if (TOKEN != thensym) {
-            // @TODO error
-            printf("\n Error thensym expected");
+            
+            error(8);
             return 0;
         }
         TOKEN = get_token();
@@ -705,8 +758,8 @@ int parser_statement() {
         TOKEN = get_token();
         parser_condition();
         if (TOKEN != dosym) {
-            // @TODO error
-            printf("\n Error dosym expected");
+            
+            error(9);
             return 0;
         }
         TOKEN = get_token();
@@ -721,8 +774,7 @@ int parser_condition() {
     } else {
         parser_expression();
         if (! is_relation(TOKEN)) {
-            // @ TODO relation error
-            printf("\nError: relation expected");
+            error(010);
             return 0;
         }
         TOKEN = get_token();
@@ -785,15 +837,13 @@ int parser_factor() {
         parser_expression();
 
         if (TOKEN != rparentsym) {
-            // @TODO paren error
-            printf("\n Error: right paren expected");
+            error(011);
             return 0;
         }
 
         TOKEN = get_token();
     } else {
-        // @TODO factor error
-        printf("\n Error: factor conditions not met.");
+        error(012);
         return 0;
     }
 }
@@ -807,8 +857,7 @@ int parser_factor() {
 int cx = 0;
 void emit(int op, int r, int l, int m, instruction* code) {
     if (cx > MAX_SYMBOL_TABLE_SIZE) {
-        // @TODO Error too long
-        printf("Error: program is too long. Exiting...");
+        error(013);
         return;
     } else {
         code[cx].op = op; 	//opcode
