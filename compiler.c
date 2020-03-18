@@ -513,6 +513,9 @@ int lex_main(void) {
  
 void emit(int op, int r, int l, int m, instruction* code);
 
+instruction symbol_table[MAX_SYMBOL_TABLE_SIZE];
+
+
 // Recursive Descent Parser
 
 typedef struct { 
@@ -531,8 +534,6 @@ typedef struct {
     int addr; 
     // M address
 } symbol; 
-
-instruction symbol_table[MAX_SYMBOL_TABLE_SIZE];
 
 int is_valid_token(wordy check_token) {
     if (check_token.token_type >= 0 && check_token.token_type <= 33) {
@@ -799,6 +800,32 @@ void emit(int op, int r, int l, int m, instruction* code) {
 }
 
 int codegen(void) {
+    char * output = "";
+    int counter = 0;
+    while (&symbol_table[counter] != NULL) {
+        char buf[3];
+        
+        sprintf(buf, "%d", symbol_table[counter].op);
+        output = dynamic_strcat(output, buf);
+        
+        sprintf(buf, "%d", symbol_table[counter].R);
+        output = dynamic_strcat(output, buf);
+        
+        sprintf(buf, "%d", symbol_table[counter].L);
+        output = dynamic_strcat(output, buf);
+        
+        sprintf(buf, "%d", symbol_table[counter].M);
+        output = dynamic_strcat(output, buf);
+        
+        output = dynamic_strcat(output, "\n");
+        printf("%s", output);
+    }
+    
+    FILE * fp;
+    fp = fopen("vm_input.txt", "w");
+    fprintf(fp, "Line\tOP\tR L M\n");
+    fprintf(fp, "%s", output);
+    fclose(fp);
     
     return 0;
 }
@@ -812,10 +839,6 @@ int codegen(void) {
 // Alex Ogilbee, Harry Sauers
 // COP 3402, Spring 2020
 // HW1: PM/0, pmachine.c
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define MAX_DATA_STACK_HEIGHT 40
 #define MAX_CODE_LENGTH 200
@@ -851,12 +874,15 @@ int REG[REG_FILE_LENGTH];
 
 /* Begin P-Machine */
 // instruction format from file is {OP LEVEL M} space-separated.
+
+/* // SEE ABOVE
 typedef struct instruction {
     int op;
     int reg;
     int l;
     int m;
 } instruction;
+*/
 
 /* find base L levels down */
 // l stand for L in the instruction format
@@ -999,10 +1025,10 @@ int SIO(int R, int zero, int M) {
 
 // ISA
 int do_operation(instruction instr) {
-    int M = instr.m;
-    int L = instr.l;
+    int M = instr.M;
+    int L = instr.L;
     int operation = instr.op;
-    int R = instr.reg;
+    int R = instr.R;
 	char * tabless_str;
 
 	PC++;
@@ -1100,13 +1126,14 @@ int do_operation(instruction instr) {
 
 int read_in(FILE * fp, instruction * text) {
 	int lines_of_text = 0;
-	while (fscanf(fp, "%d %d %d %d", &text[lines_of_text].op, &text[lines_of_text].reg, &text[lines_of_text].l, &text[lines_of_text].m) != EOF) {
+	while (fscanf(fp, "%d %d %d %d", &text[lines_of_text].op, &text[lines_of_text].R, &text[lines_of_text].L, &text[lines_of_text].M) != EOF) {
 		lines_of_text++;
 	}
 	
 	return lines_of_text;
 }
 
+/*
 char * dynamic_strcat(char * base, char * added) {
 	// resize the base String
 	char * conjoined = (char *)malloc(strlen(base) + strlen(added) + 1);
@@ -1121,6 +1148,7 @@ char * dynamic_strcat(char * base, char * added) {
 
 	return strcat(conjoined, added);
 }
+*/
 
 void update_output_one(char * OP, int R, int L, int M, int i) {
 	char tmp[3];
@@ -1252,7 +1280,7 @@ char * ins_to_string(instruction ins, int i) {
 			printf("literally not possible");
 	}
 	// function the rest
-		update_output_one(tmp, ins.reg, ins.l, ins.m, i);
+		update_output_one(tmp, ins.R, ins.L, ins.M, i);
 
 	return output_one[i];
 }
@@ -1289,7 +1317,7 @@ int vm_main(void) {
         pipes[i] = 0;
     }
 
-	FILE *fp = fopen("factorial.txt", "r");
+	FILE *fp = fopen("vm_input.txt", "r");
 	if (fp == NULL) {
 		printf("Error: Could not locate file.\n");
 		exit(-1);
@@ -1339,6 +1367,7 @@ int main(void) {
     lex_main();
     parser();
     
+    vm_main();
     
     free(word_list);
 }
