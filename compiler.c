@@ -379,6 +379,7 @@ int lex_main(void) {
                     if (program_string[i+1] == '=') {
                         current_word = "<=";
                         token = leqsym;
+                        j += 1;
                     } else {
                         token = lessym;
                     }
@@ -387,6 +388,7 @@ int lex_main(void) {
                     if (program_string[i+1] == '=') {
                         current_word = ">=";
                         token = geqsym;
+                        j += 1;
                     } else {
                         token = gtrsym;
                     }
@@ -398,6 +400,7 @@ int lex_main(void) {
                     if (program_string[i+1] == '=') {
                         current_word = ":=";
                         token = becomessym;
+                        j += 1;
                     } else {
                         token = eqlsym;
                     }
