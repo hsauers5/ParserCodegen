@@ -533,7 +533,13 @@ typedef struct {
     
     int addr; 
     // M address
+
+	int mark;
+	// 0 if to be used, 1 if its been "deleted"
 } symbol; 
+symbol symbol_table[MAX_SYMBOL_TABLE_SIZE];
+int tp = 1; // 0 is sentinel: tp = table pointer.
+int num_of_vars = 0;	// temporary solution to variable index
 
 int is_valid_token(wordy check_token) {
     if (check_token.token_type >= 0 && check_token.token_type <= 33) {
@@ -590,12 +596,15 @@ int parser_program() {
 int parser_block() {
     if (TOKEN == constsym) {
         do {
-            TOKEN = get_token();
+			symbol_table[tp].kind = 1; // const
+          TOKEN = get_token();
             if (TOKEN != identsym) {
                 // @TODO error
                 printf("\nError identsym expected\n");
                 return 0;
-            }
+			}
+//			symbol_table[tp].name = "";
+			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
             
             TOKEN = get_token();
             if (TOKEN != eqlsym) {
@@ -610,7 +619,10 @@ int parser_block() {
                 printf("\nError number expected\n");
                 return 0;
             }
-            
+			symbol_table[tp].val = TOKEN;
+          symbol_table[tp].mark = 0;
+			tp++;
+
             TOKEN = get_token();
         } while (TOKEN == commasym);
         
@@ -625,12 +637,21 @@ int parser_block() {
 
 	if (TOKEN == varsym) {
 		do {
+			symbol_table[tp].kind = 2; // 2 for var
 			TOKEN = get_token();
 			if (TOKEN != identsym) {
 	          printf("\nError identsym expected\n");
 				return 0;
 			}
-            
+ //         symbol_table[tp].name = word_list[token_counter - 1].lexeme;
+			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
+			symbol_table[tp].val = 0;
+			symbol_table[tp].level = 0;
+			symbol_table[tp].addr = num_of_vars + 4; // 4 for SL, DL, RA, FV.
+			symbol_table[tp].mark = 0;
+			tp++;
+			num_of_vars++;
+
 			TOKEN = get_token();
 		} while (TOKEN == commasym);
 
