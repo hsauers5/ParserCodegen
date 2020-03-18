@@ -513,7 +513,7 @@ int lex_main(void) {
  
 void emit(int op, int r, int l, int m, instruction* code);
 
-instruction symbol_table[MAX_SYMBOL_TABLE_SIZE];
+instruction assembly_array[MAX_SYMBOL_TABLE_SIZE];
 
 
 // Recursive Descent Parser
@@ -622,7 +622,27 @@ int parser_block() {
         
         TOKEN = get_token();
     }
-    
+
+	if (TOKEN == varsym) {
+		do {
+			TOKEN = get_token();
+			if (TOKEN != identsym) {
+	          printf("\nError identsym expected\n");
+				return 0;
+			}
+            
+			TOKEN = get_token();
+		} while (TOKEN == commasym);
+
+		if (TOKEN != semicolonsym) {
+				    // @TODO error
+				    printf("\nError semicolonsym expected\n");
+				    return 0;
+				}
+				
+				TOKEN = get_token();
+			}
+
     if (TOKEN == numbersym) {
         do {
             TOKEN = get_token();
@@ -718,7 +738,7 @@ int parser_expression() {
         parser_term();
         
         if (addop == minussym) {
-            emit(2, 0, 0, 1, symbol_table); // @TODO 2nd arg is register
+            emit(2, 0, 0, 1, assembly_array); // @TODO 2nd arg is register
         }
     } else {
         parser_term();
@@ -730,9 +750,9 @@ int parser_expression() {
         parser_term();
         
         if (addop == plussym) {
-            emit(2, 0, 0, 2, symbol_table); // @TODO 2nd arg is register
+            emit(2, 0, 0, 2, assembly_array); // @TODO 2nd arg is register
         } else {
-            emit(2, 0, 0, 3, symbol_table); // @TODO 2nd arg is register
+            emit(2, 0, 0, 3, assembly_array); // @TODO 2nd arg is register
         }
     }
 }
@@ -747,9 +767,9 @@ int parser_term() {
         parser_factor();
         
         if (TOKEN == multsym) {
-            emit(2, 0, 0, 4, symbol_table); // @TODO 2nd arg is register
+            emit(2, 0, 0, 4, assembly_array); // @TODO 2nd arg is register
         } else {
-            emit(2, 0, 0, 5, symbol_table); // @TODO 2nd arg is register
+            emit(2, 0, 0, 5, assembly_array); // @TODO 2nd arg is register
         }
     }
 }
@@ -802,19 +822,19 @@ void emit(int op, int r, int l, int m, instruction* code) {
 int codegen(void) {
     char * output = "";
     int counter = 0;
-    while (&symbol_table[counter] != NULL && symbol_table[counter].op != 0) {
+    while (&assembly_array[counter] != NULL && assembly_array[counter].op != 0) {
         char buf[3];
         
-        sprintf(buf, "%d", symbol_table[counter].op);
+        sprintf(buf, "%d", assembly_array[counter].op);
         output = dynamic_strcat(output, buf);
         
-        sprintf(buf, "%d", symbol_table[counter].R);
+        sprintf(buf, "%d", assembly_array[counter].R);
         output = dynamic_strcat(output, buf);
         
-        sprintf(buf, "%d", symbol_table[counter].L);
+        sprintf(buf, "%d", assembly_array[counter].L);
         output = dynamic_strcat(output, buf);
         
-        sprintf(buf, "%d", symbol_table[counter].M);
+        sprintf(buf, "%d", assembly_array[counter].M);
         output = dynamic_strcat(output, buf);
         
         output = dynamic_strcat(output, "\n");
