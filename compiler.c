@@ -27,7 +27,6 @@ void error(int err) {
     
     switch(err) {
         case 1:
-            // period expected        
             printf("\n Error 001, period expected.\n");
             break;
         case 2:
@@ -888,9 +887,6 @@ int codegen(void) {
         
         output = dynamic_strcat(output, "\n");
         printf("%s", output);
-        
-        int bad;
-        //scanf("%d\n", &bad);
     }
     
     FILE * fp;
