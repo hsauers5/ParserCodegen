@@ -649,6 +649,7 @@ int parser_program() {
     if (TOKEN != periodsym) {
             error(1);
     }
+	emit(11,0,0,3, assembly_array);	// end of program
 }
 
 int parser_block() {
@@ -661,7 +662,6 @@ int parser_block() {
                 error(2);
                 return 0;
 			}
-//			symbol_table[tp].name = "";
 			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
             
             TOKEN = get_token();
@@ -701,7 +701,6 @@ int parser_block() {
                 error(2);
 				return 0;
 			}
- //         symbol_table[tp].name = word_list[token_counter - 1].lexeme;
 			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
 			symbol_table[tp].val = 0;
 			symbol_table[tp].level = 0;
@@ -711,6 +710,7 @@ int parser_block() {
 			num_of_vars++;
 
 			TOKEN = get_token();
+			emit(6,0,0,1, assembly_array);		// create a new variable in the stack
 		} while (TOKEN == commasym);
 
 		if (TOKEN != semicolonsym) {
@@ -914,6 +914,8 @@ int codegen(void) {
         
         output = dynamic_strcat(output, "\n");
         // printf("OUTPUT: %s", output);
+
+		counter++;
     }
     
     FILE * fp;
@@ -1465,6 +1467,10 @@ int main(void) {
     
     printf("Parser\n");
     parser();
+
+	int i;
+	for(i = 0; i < cx; i++)
+		printf("%d %d %d %d\n", assembly_array[i].op, assembly_array[i].R, assembly_array[i].L, assembly_array[i].M);
     
     printf("Codegen\n");
     codegen();
