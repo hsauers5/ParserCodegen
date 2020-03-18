@@ -644,6 +644,8 @@ int parser_program() {
     TOKEN = get_token();
     parser_block();
     
+    TOKEN = get_token();
+    
     if (TOKEN != periodsym) {
             error(1);
     }
@@ -895,7 +897,7 @@ void emit(int op, int r, int l, int m, instruction* code) {
 int codegen(void) {
     char * output = "";
     int counter = 0;
-    while (&assembly_array[counter] != NULL && assembly_array[counter].op != 0) {
+    while (&assembly_array[counter] != NULL && assembly_array[counter].op != 0 && counter < 100) {
         char buf[3];
         
         sprintf(buf, "%d", assembly_array[counter].op);
@@ -911,12 +913,12 @@ int codegen(void) {
         output = dynamic_strcat(output, buf);
         
         output = dynamic_strcat(output, "\n");
-        printf("%s", output);
+        printf("OUTPUT: %s", output);
     }
     
     FILE * fp;
     fp = fopen("vm_input.txt", "w");
-    fprintf(fp, "Line\tOP\tR L M\n");
+    // fprintf(fp, "Line\tOP\tR L M\n");
     fprintf(fp, "%s", output);
     fclose(fp);
     
