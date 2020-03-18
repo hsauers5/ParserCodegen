@@ -23,7 +23,7 @@ Structure:
 /* Catch Errors & Exit Program for Parser */
 
 void error(int err) {
-    int exit_program = 0;
+    int exit_program = 1;
     
     switch(err) {
         case 1:
@@ -65,12 +65,13 @@ void error(int err) {
         case 14:
             printf("\nError 013 program too long\n");
             break;
+           
+        } 
             
-        if (exit_program) {
+        if (exit_program == 1) {
             printf("Exiting...\n");
             exit(-1);
         }
-    }
 }
 
 /* LexicalAnalyzer */
@@ -635,7 +636,7 @@ int parser_program() {
     parser_block();
     
     if (TOKEN != periodsym) {
-            error(001);
+            error(1);
     }
 }
 
@@ -645,21 +646,21 @@ int parser_block() {
             TOKEN = get_token();
             if (TOKEN != identsym) {
                 
-                error(002);
+                error(2);
                 return 0;
             }
             
             TOKEN = get_token();
             if (TOKEN != eqlsym) {
                 
-                error(003);
+                error(3);
                 return 0;
             }
             
             TOKEN = get_token();
             if (TOKEN != numbersym) {
                 
-                error(004);
+                error(4);
                 return 0;
             }
             
@@ -668,7 +669,7 @@ int parser_block() {
         
         if (TOKEN != semicolonsym) {
             
-                error(005);
+                error(5);
             return 0;
         }
         
@@ -679,7 +680,7 @@ int parser_block() {
 		do {
 			TOKEN = get_token();
 			if (TOKEN != identsym) {
-                error(002);
+                error(2);
 				return 0;
 			}
             
@@ -688,7 +689,7 @@ int parser_block() {
 
 		if (TOKEN != semicolonsym) {
 				    
-                    error(005);
+                    error(5);
 				    return 0;
 				}
 				
@@ -700,7 +701,7 @@ int parser_block() {
             TOKEN = get_token();
             if (TOKEN != identsym) {
                 
-                error(002);
+                error(2);
                 return 0;
             }
 
@@ -709,7 +710,7 @@ int parser_block() {
 
         if (TOKEN != semicolonsym) {
             
-            error(005);
+            error(5);
             return 0;
         }
         TOKEN = get_token();
@@ -723,7 +724,7 @@ int parser_statement() {
         TOKEN = get_token();
         if (TOKEN != becomessym) {
             
-            error(006);
+            error(6);
             return 0;
         }
         TOKEN = get_token();
@@ -737,8 +738,7 @@ int parser_statement() {
             parser_statement();
         }
         if (TOKEN != endsym) {
-            
-            error(007);
+            error(7);
             return 0;
         }
     }
@@ -746,7 +746,6 @@ int parser_statement() {
         TOKEN = get_token();
         parser_condition();
         if (TOKEN != thensym) {
-            
             error(8);
             return 0;
         }
@@ -773,7 +772,7 @@ int parser_condition() {
     } else {
         parser_expression();
         if (! is_relation(TOKEN)) {
-            error(010);
+            error(10);
             return 0;
         }
         TOKEN = get_token();
@@ -827,23 +826,25 @@ int parser_term() {
 
 // @TODO finish this
 int parser_factor() {
-    if (TOKEN == identsym) {
-        TOKEN = get_token();
-    } else if (TOKEN == numbersym) {
-        TOKEN = get_token();
-    } else if (TOKEN == lparentsym) {
-        TOKEN = get_token();
-        parser_expression();
+    while ((TOKEN==identsym) || (TOKEN==numbersym) || (TOKEN==lparentsym)) {
+        if (TOKEN == identsym) {
+            TOKEN = get_token();
+        } else if (TOKEN == numbersym) {
+            TOKEN = get_token();
+        } else if (TOKEN == lparentsym) {
+            TOKEN = get_token();
+            parser_expression();
 
-        if (TOKEN != rparentsym) {
-            error(011);
+            if (TOKEN != rparentsym) {
+                error(11);
+                return 0;
+            }
+
+            TOKEN = get_token();
+        } else {
+            error(12);
             return 0;
         }
-
-        TOKEN = get_token();
-    } else {
-        error(012);
-        return 0;
     }
 }
 
@@ -856,7 +857,7 @@ int parser_factor() {
 int cx = 0;
 void emit(int op, int r, int l, int m, instruction* code) {
     if (cx > MAX_SYMBOL_TABLE_SIZE) {
-        error(013);
+        error(13);
         return;
     } else {
         code[cx].op = op; 	//opcode
