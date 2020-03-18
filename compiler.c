@@ -900,20 +900,20 @@ int codegen(void) {
     while (&assembly_array[counter] != NULL && assembly_array[counter].op != 0 && counter < 100) {
         char buf[3];
         
-        sprintf(buf, "%d", assembly_array[counter].op);
+        sprintf(buf, "%d ", assembly_array[counter].op);
         output = dynamic_strcat(output, buf);
         
-        sprintf(buf, "%d", assembly_array[counter].R);
+        sprintf(buf, "%d ", assembly_array[counter].R);
         output = dynamic_strcat(output, buf);
         
-        sprintf(buf, "%d", assembly_array[counter].L);
+        sprintf(buf, "%d ", assembly_array[counter].L);
         output = dynamic_strcat(output, buf);
         
-        sprintf(buf, "%d", assembly_array[counter].M);
+        sprintf(buf, "%d ", assembly_array[counter].M);
         output = dynamic_strcat(output, buf);
         
         output = dynamic_strcat(output, "\n");
-        printf("OUTPUT: %s", output);
+        // printf("OUTPUT: %s", output);
     }
     
     FILE * fp;
