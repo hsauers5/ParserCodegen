@@ -252,6 +252,7 @@ void InvalidSymbolError(void) {
 
 
 wordy * word_list;
+int word_count = 0;
 int lex_main(void) {
     // so we want to have an input reader
     FILE *fp = fopen("input.txt", "r");
@@ -262,7 +263,6 @@ int lex_main(void) {
         exit(-1);
     }
     word_list = (wordy *)calloc(1, sizeof(wordy));
-	int word_count = 0;
 	int temp_token;
 	char * current_word;
 	word_list[0].lexeme = "poopy";
@@ -1509,6 +1509,18 @@ int vm_main(void) {
 
 /* ================================================================================== */
 
+char * get_symbolic_representation(int token_type) {
+    char * symbols[] = { "nulsym", "identsym", "numbersym", "plussym", "minussym", 
+                    "multsym", " slashsym", "oddsym", "eqlsym", "neqsym", 
+                    "lessym", "leqsym", "gtrsym", "geqsym", "lparentsym", 
+                    "rparentsym", "commasym", "semicolonsym", "periodsym", "becomessym", 
+                    "beginsym", "endsym", "ifsym", "thensym", "whilesym", 
+                    "dosym", "callsym", "constsym", "varsym", "procsym", 
+                    "writesym", "readsym ", "elsesym" };
+                    
+    return symbols[token_type-1];
+}
+
 int main(int argc, char* argv[]) {
     // printf("Lexer\n");
     lex_main();
@@ -1527,9 +1539,6 @@ int main(int argc, char* argv[]) {
     
     // printf("VM\n");
     vm_main();
-    
-    free(word_list);
-    
     
     /* ==== PRINTING CLI ARGS ==== */
     
@@ -1554,6 +1563,7 @@ int main(int argc, char* argv[]) {
     if (print_lexer_output) {
         printf("\n\nLexer Output: \n");
         printf("======================================\n");
+        /*
         // print lexer output - lexer_output.txt
         FILE * f = fopen("lexer_output.txt", "r");
         char s;
@@ -1561,6 +1571,16 @@ int main(int argc, char* argv[]) {
           printf("%c", s);
         }
         fclose(f);
+        */
+        
+        for (int i = 0; i < word_count; i++) {
+            printf("%d ", word_list[i].token_type);
+        }
+        printf("\n");
+        for (int i = 0; i < word_count; i++) {
+            printf("%s ", get_symbolic_representation(word_list[i].token_type));
+        }
+        printf("\n");
     }
     
     if (print_parser_output) {
@@ -1573,6 +1593,8 @@ int main(int argc, char* argv[]) {
           printf("%c", s);
         }
         fclose(f);
+        
+        printf("\n");
     }
     
     if (print_vm_trace) {
@@ -1585,7 +1607,9 @@ int main(int argc, char* argv[]) {
           printf("%c", s);
         }
         fclose(f);
+        
+        printf("\n");
     }
     
-    
+    free(word_list);
 }
