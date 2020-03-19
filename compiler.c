@@ -1575,10 +1575,16 @@ int main(int argc, char* argv[]) {
         
         for (int i = 0; i < word_count; i++) {
             printf("%d ", word_list[i].token_type);
+            if (word_list[i].token_type == identsym || word_list[i].token_type == numbersym) {
+			    printf("%s ", word_list[i].lexeme);
+		    }
         }
         printf("\n");
         for (int i = 0; i < word_count; i++) {
             printf("%s ", get_symbolic_representation(word_list[i].token_type));
+            if (word_list[i].token_type == identsym || word_list[i].token_type == numbersym) {
+			    printf("%s ", word_list[i].lexeme);
+		    }
         }
         printf("\n");
     }
