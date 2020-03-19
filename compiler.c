@@ -634,6 +634,8 @@ int parser_expression();
 int parser_term();
 int parser_factor();
 
+int cx = 0;
+int ctemp, cx1, cx2;
 
 int TOKEN;
 int parser(void) {    
@@ -653,6 +655,8 @@ int parser_program() {
 }
 
 int parser_block() {
+	emit(6,0,0,4, assembly_array);	// first init
+
     if (TOKEN == constsym) {
         do {
 			symbol_table[tp].kind = 1; // const
@@ -776,11 +780,17 @@ int parser_statement() {
             return 0;
         }
         TOKEN = get_token();
+		ctemp = cx;
+		emit(8, 0, 0, 0, assembly_array); //jpc
         parser_statement();
+		assembly_array[ctemp].M = cx;
     }
     else if (TOKEN == whilesym) {
+		cx1 = cx;
         TOKEN = get_token();
         parser_condition();
+		cx2 = cx;
+		emit(8, 0, 0, 0, assembly_array);	//jpc
         if (TOKEN != dosym) {
             
             error(9);
@@ -788,6 +798,8 @@ int parser_statement() {
         }
         TOKEN = get_token();
         parser_statement();
+		emit(7, 0, 0, cx1, assembly_array);
+		assembly_array[cx2].M = cx;
     }
 }
 
@@ -880,7 +892,8 @@ int parser_factor() {
 
 /* CodeGen */
 /* ================================================================================== */
-int cx = 0;
+
+
 void emit(int op, int r, int l, int m, instruction* code) {
     if (cx > MAX_SYMBOL_TABLE_SIZE) {
         error(13);
