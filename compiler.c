@@ -1552,6 +1552,8 @@ int main(int argc, char* argv[]) {
     }
     
     if (print_lexer_output) {
+        printf("\n\nLexer Output: \n");
+        printf("======================================\n");
         // print lexer output - lexer_output.txt
         FILE * f = fopen("lexer_output.txt", "r");
         char s;
@@ -1562,6 +1564,8 @@ int main(int argc, char* argv[]) {
     }
     
     if (print_parser_output) {
+        printf("\n\nParser Output: \n");
+        printf("======================================\n");
         // print parser output - vm_input.txt
         FILE * f = fopen("vm_input.txt", "r");
         char s;
@@ -1572,6 +1576,8 @@ int main(int argc, char* argv[]) {
     }
     
     if (print_vm_trace) {
+        printf("\n\nVM Execution Trace: \n");
+        printf("======================================\n");
         // print vm trace - output.txt
         FILE * f = fopen("output.txt", "r");
         char s;
