@@ -633,9 +633,13 @@ int parser_condition();
 int parser_expression();
 int parser_term();
 int parser_factor();
+int find_in_symbol_table(char * name);
 
 int cx = 0;
 int ctemp, cx1, cx2;
+
+int reg_counter;
+int loc, loc_two;
 
 int TOKEN;
 int parser(void) {    
@@ -750,7 +754,9 @@ int parser_block() {
 }
 
 int parser_statement() {
+	reg_counter = 0;
     if (TOKEN == identsym) {
+		loc_two = find_in_symbol_table(word_list[token_counter - 1].lexeme);
         TOKEN = get_token();
         if (TOKEN != becomessym) {
             
@@ -759,6 +765,7 @@ int parser_statement() {
         }
         TOKEN = get_token();
         parser_expression();
+			emit(4, 0, symbol_table[loc_two].level, symbol_table[loc_two].addr, assembly_array);
     }
     else if (TOKEN == beginsym) {
         TOKEN = get_token();
@@ -826,7 +833,7 @@ int parser_expression() {
         parser_term();
         
         if (addop == minussym) {
-            emit(12, 0, 0, 1, assembly_array); // @TODO 2nd arg is register
+            emit(12, reg_counter, 0, 1, assembly_array); // @TODO 2nd arg is register
         }
     } else {
         parser_term();
@@ -835,12 +842,14 @@ int parser_expression() {
     while (TOKEN == plussym || TOKEN == minussym) {
         addop = TOKEN;
         TOKEN = get_token();
+			reg_counter++;
         parser_term();
+			reg_counter--;
         
         if (addop == plussym) {
-            emit(13, 0, 0, 2, assembly_array); // @TODO 2nd arg is register
+            emit(13, reg_counter, reg_counter, reg_counter + 1, assembly_array); // @TODO 2nd arg is register
         } else {
-            emit(14, 0, 0, 3, assembly_array); // @TODO 2nd arg is register
+            emit(14, reg_counter, reg_counter, reg_counter + 1, assembly_array); // @TODO 2nd arg is register
         }
     }
 }
@@ -852,26 +861,39 @@ int parser_term() {
     while (TOKEN == multsym || TOKEN == slashsym) {
         mulop = TOKEN;
         TOKEN = get_token();
+		reg_counter++;
         parser_factor();
+		reg_counter--;
         
         if (TOKEN == multsym) {
-            emit(15, 0, 0, 4, assembly_array); // @TODO 2nd arg is register
+            emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
         } else {
-            emit(16, 0, 0, 5, assembly_array); // @TODO 2nd arg is register
+            emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
         }
     }
 }
 
 // @TODO finish this
 int parser_factor() {
-    while ((TOKEN==identsym) || (TOKEN==numbersym) || (TOKEN==lparentsym)) {
+//    while ((TOKEN==identsym) || (TOKEN==numbersym) || (TOKEN==lparentsym)) {
         if (TOKEN == identsym) {
+			// find the l and m from the symbol table
+			loc = find_in_symbol_table(word_list[token_counter - 1].lexeme);
+			// emit a LOD, reg_counter, L, M, ass
+			if (symbol_table[loc].kind == 2) {	// if its a variable
+				emit(3, reg_counter, symbol_table[loc].level, symbol_table[loc].addr, assembly_array);	// lod
+			} else {
+				emit(1, reg_counter, 0, symbol_table[loc].val, assembly_array);
+			}
             TOKEN = get_token();
         } else if (TOKEN == numbersym) {
+			emit(1, reg_counter, 0, atoi(word_list[token_counter - 1].lexeme), assembly_array); // lit
             TOKEN = get_token();
         } else if (TOKEN == lparentsym) {
             TOKEN = get_token();
+				reg_counter++;
             parser_expression();
+				reg_counter--;
 
             if (TOKEN != rparentsym) {
                 error(11);
@@ -883,7 +905,7 @@ int parser_factor() {
             error(12);
             return 0;
         }
-    }
+//    }
 }
 
 
@@ -905,6 +927,19 @@ void emit(int op, int r, int l, int m, instruction* code) {
         code[cx].M = m;	// modifier
         cx++;
     }
+}
+
+int find_in_symbol_table(char * name) {
+	int seek;
+
+	for (seek = tp; seek > 0; seek--) {
+		if (symbol_table[seek].mark == 0 &&
+			  strcmp(symbol_table[seek].name, name) == 0) {
+			return seek;
+		}
+	}
+	printf("Error: symbol not in symbol table!");
+	exit(-1);
 }
 
 int codegen(void) {
