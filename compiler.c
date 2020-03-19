@@ -10,7 +10,7 @@
 Structure:
     - LexicalAnalyzer (Scanner) | lex_main()
     - Parser | parser()
-    - CodeGen | codegen() @TODO & write to file
+    - CodeGen | codegen()
     - VM (HW1) | vm_main()
 */
 
@@ -255,7 +255,7 @@ wordy * word_list;
 int lex_main(void) {
     // so we want to have an input reader
     FILE *fp = fopen("input.txt", "r");
-    FILE *out = fopen("output.txt", "w");
+    FILE *out = fopen("lexer_output.txt", "w");
     
     if (fp == NULL) {
         printf("Error: Could not locate file.\n");
@@ -411,7 +411,7 @@ int lex_main(void) {
         // check if the string is a reserved word
         else if (is_reserved_word(current_word)) {
             // do stuff
-            printf("Reserved word found\n");
+            // printf("Reserved word found\n");
            
             // get token
             int index = -1;
@@ -855,9 +855,9 @@ int parser_term() {
         parser_factor();
         
         if (TOKEN == multsym) {
-            emit(2, 0, 0, 4, assembly_array); // @TODO 2nd arg is register
+            emit(15, 0, 0, 4, assembly_array); // @TODO 2nd arg is register
         } else {
-            emit(2, 0, 0, 5, assembly_array); // @TODO 2nd arg is register
+            emit(16, 0, 0, 5, assembly_array); // @TODO 2nd arg is register
         }
     }
 }
@@ -1474,24 +1474,77 @@ int vm_main(void) {
 
 /* ================================================================================== */
 
-int main(void) {
-    // printf("Hello world. I work!\n");
-    
-    printf("Lexer\n");
+int main(int argc, char* argv[]) {
+    // printf("Lexer\n");
     lex_main();
     
-    printf("Parser\n");
+    // printf("Parser\n");
     parser();
 
+    /* 
 	int i;
 	for(i = 0; i < cx; i++)
 		printf("%d %d %d %d\n", assembly_array[i].op, assembly_array[i].R, assembly_array[i].L, assembly_array[i].M);
+    */
     
-    printf("Codegen\n");
+    // printf("Codegen\n");
     codegen();
     
-    printf("VM\n");
+    // printf("VM\n");
     vm_main();
     
     free(word_list);
+    
+    
+    /* ==== PRINTING CLI ARGS ==== */
+    
+    char * lexer_output_arg = "-l";
+    char * parser_output_arg = "-a";
+    char * vm_execution_trace_arg = "-v";
+    
+    int print_lexer_output=0, print_parser_output=0, print_vm_trace = 0;
+    
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], lexer_output_arg) == 0) {
+            print_lexer_output = 1;
+        }
+        if (strcmp(argv[i], parser_output_arg) == 0) {
+            print_parser_output = 1;
+        }
+        if (strcmp(argv[i], vm_execution_trace_arg) == 0) {
+            print_vm_trace = 1;
+        }
+    }
+    
+    if (print_lexer_output) {
+        // print lexer output - lexer_output.txt
+        FILE * f = fopen("lexer_output.txt", "r");
+        char s;
+        while((s = fgetc(f)) != EOF) {
+          printf("%c", s);
+        }
+        fclose(f);
+    }
+    
+    if (print_parser_output) {
+        // print parser output - vm_input.txt
+        FILE * f = fopen("vm_input.txt", "r");
+        char s;
+        while((s = fgetc(f)) != EOF) {
+          printf("%c", s);
+        }
+        fclose(f);
+    }
+    
+    if (print_vm_trace) {
+        // print vm trace - output.txt
+        FILE * f = fopen("output.txt", "r");
+        char s;
+        while((s = fgetc(f)) != EOF) {
+          printf("%c", s);
+        }
+        fclose(f);
+    }
+    
+    
 }
