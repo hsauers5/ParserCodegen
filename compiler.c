@@ -62,7 +62,7 @@ void error(int err) {
         case 12:
             printf("\nError 012 Factor conditions not met\n");
             break;
-        case 14:
+        case 13:
             printf("\nError 013 program too long\n");
             break;
            
@@ -644,6 +644,7 @@ int loc, loc_two;
 int TOKEN;
 int parser(void) {    
     parser_program();
+    printf("No errors, program is syntactically correct");
 }
 
 int parser_program() {
