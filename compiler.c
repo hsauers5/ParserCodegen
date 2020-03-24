@@ -65,7 +65,9 @@ void error(int err) {
         case 13:
             printf("\nError 013 program too long\n");
             break;
-           
+		case 14:
+			printf("\nError 014 symbol not in symbol table\n");
+           break;
         } 
             
         if (exit_program == 1) {
@@ -939,8 +941,7 @@ int find_in_symbol_table(char * name) {
 			return seek;
 		}
 	}
-	printf("Error: symbol not in symbol table!");
-	exit(-1);
+	error(14);
 }
 
 int codegen(void) {

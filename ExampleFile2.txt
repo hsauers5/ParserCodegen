@@ -238,3 +238,13 @@ begin
 end.
 
 Error 013 program too long
+
+
+Input:
+
+var x;
+begin
+	x := y;
+end.
+
+Error 014 symbol not in symbol table
