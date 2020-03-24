@@ -1,0 +1,132 @@
+Example File #2:
+A text file composed of the input file to your Scanner and the output of your Parser 
+to demonstrate all possible errors. This may require many runs and the Parser output 
+should indicate which error is being identified.
+
+
+Input to Scanner: 
+
+var x, y;
+begin
+  x := y + 56;
+end
+
+Error 001, period expected.
+
+
+Input: 
+
+var 1, x, y;
+begin
+  x := y + 56;
+end.
+
+Error 002, identsym expected
+
+
+Input: 
+
+const a := 2;
+var x, y;
+begin
+  x := y + 56;
+end.
+
+Error 003 eqsym expected
+
+
+Input:
+
+const a = b;
+var x, y;
+begin
+  x := y + 56;
+end.
+
+Error 004 number expected
+
+
+Input:
+
+var x, y
+begin
+  x := y + 56;
+end.
+
+Error 005 semicolonsym expected
+
+
+Input:
+
+var x, y;
+begin
+  x = y + 56;
+end.
+
+Error 006 becomessym expected
+
+
+Input:
+
+var x, y;
+begin
+  x := y + 56;
+.
+
+Error 007 endsym expected
+
+
+Input:
+
+var x, y;
+begin
+  if 1 > 3
+    x := y + 56;
+end.
+
+Error 008 thensym expected
+
+
+Input:
+
+var x, y;
+begin
+  while 1 > 3
+    x := y + 56;
+end.
+
+Error 009 dosym expected
+
+
+Input:
+
+var x, y;
+begin
+  if 3
+    x := y + 56;
+end.
+
+Error 010 relation expected
+
+
+Input:
+
+var x, y;
+begin
+  x := (y*2 + 56;
+end.
+
+Error 011 rparensym expected
+
+
+Input:
+
+var x, y;
+begin
+  x := y + 56;
+if * then
+  x := x+1;
+end.
+
+Error 012 Factor conditions not met
+

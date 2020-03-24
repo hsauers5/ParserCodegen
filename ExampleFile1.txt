@@ -1,0 +1,71 @@
+Example File #1: 
+A text file composed of the input file to your Scanner and the output of your Parser 
+to demonstrate a correctly formed tiny- PL/0 program. The Parser output should 
+indicate the program is syntactically correct. Following the statement that the 
+program is syntactically correct, the text file should contain the generated code from 
+your intermediate code generator and the stack output from your Virtual Machine 
+running your code. 
+
+
+Input to Scanner: 
+
+var x, y;
+begin
+  x := y + 56;
+end.
+
+No errors, program is syntactically correct
+
+
+Output from Parser: 
+
+6 0 0 4 
+6 0 0 1 
+6 0 0 1 
+3 0 0 5 
+1 1 0 56 
+13 0 0 1 
+4 0 0 4 
+11 0 0 3
+
+
+VM Output:
+
+Line	OP	R L M
+0	inc	0 0 4
+1	inc	0 0 1
+2	inc	0 0 1
+3	lod	0 0 5
+4	lit	1 0 56
+5	add	0 0 1
+6	sto	0 0 4
+7	sio	0 0 3
+
+pc	bp	sp	registers
+Initial values	0	1	0	0 0 0 0 0 0 0 0
+Stack:
+
+0 inc 0 0 4	1	1	4	0 0 0 0 0 0 0 0
+Stack: 0 0 0 0
+
+1 inc 0 0 1	2	1	5	0 0 0 0 0 0 0 0
+Stack: 0 0 0 0 0
+
+2 inc 0 0 1	3	1	6	0 0 0 0 0 0 0 0
+Stack: 0 0 0 0 0 0
+
+3 lod 0 0 5	4	1	6	0 0 0 0 0 0 0 0
+Stack: 0 0 0 0 0 0
+
+4 lit 1 0 56	5	1	6	0 56 0 0 0 0 0 0
+Stack: 0 0 0 0 0 0
+
+5 add 0 0 1	6	1	6	56 56 0 0 0 0 0 0
+Stack: 0 0 0 0 0 0
+
+6 sto 0 0 4	7	1	6	56 56 0 0 0 0 0 0
+Stack: 0 0 0 0 56 0
+
+7 sio 0 0 3	8	1	6	56 56 0 0 0 0 0 0
+Stack: 0 0 0 0 56 0
+
