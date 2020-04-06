@@ -753,6 +753,35 @@ int parser_block() {
         TOKEN = get_token();
     }
     
+    // @TODO NEW =============================================================================================
+    while (TOKEN == procsym) {
+        TOKEN = get_token();
+        if (TOKEN != identsym) {
+            // @TODO error
+            printf("\nError identsym expected\n");
+            return 0;
+        }
+
+        TOKEN = get_token();
+        if (TOKEN != semicolonsym) {
+            // @TODO error
+            printf("\nError semicolonsym expected\n");
+            return 0;
+        }
+
+        TOKEN = get_token();
+
+        parser_block();
+
+        if (TOKEN != semicolonsym) {
+            // @TODO error
+            printf("\nError semicolonsym expected\n");
+            return 0;
+        }
+
+        TOKEN = get_token();
+    }
+    
     parser_statement();
 }
 
@@ -769,6 +798,16 @@ int parser_statement() {
         TOKEN = get_token();
         parser_expression();
 			emit(4, 0, symbol_table[loc_two].level, symbol_table[loc_two].addr, assembly_array);
+    }
+    // @TODO NEW ==========================================================================================
+    else if (TOKEN == callsym) {
+        TOKEN = get_token();
+        if (TOKEN != identsym) {
+            // @TODO error
+            printf("\n Error identsym expected\n");
+            return 0;
+        }
+        TOKEN = get_token();
     }
     else if (TOKEN == beginsym) {
         TOKEN = get_token();
