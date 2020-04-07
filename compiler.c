@@ -252,12 +252,12 @@ void InvalidSymbolError(void) {
     exit(0);
 }
 
-
+char * INPUT_FILE;
 wordy * word_list;
 int word_count = 0;
 int lex_main(void) {
     // so we want to have an input reader
-    FILE *fp = fopen("input.txt", "r");
+    FILE *fp = fopen(INPUT_FILE, "r");
     FILE *out = fopen("lexer_output.txt", "w");
     
     if (fp == NULL) {
@@ -1563,6 +1563,11 @@ char * get_symbolic_representation(int token_type) {
 }
 
 int main(int argc, char* argv[]) {
+
+    // @TODO accept input filename from command line
+    char * file_name = argv[1];
+    INPUT_FILE = file_name;
+    
     // printf("Lexer\n");
     lex_main();
     
@@ -1583,15 +1588,13 @@ int main(int argc, char* argv[]) {
     
     /* ==== PRINTING CLI ARGS ==== */
     
-    // @TODO accept input filename from command line
-    
     char * lexer_output_arg = "-l";
     char * parser_output_arg = "-a";
     char * vm_execution_trace_arg = "-v";
     
     int print_lexer_output=0, print_parser_output=0, print_vm_trace = 0;
     
-    for (int i = 0; i < argc; i++) {
+    for (int i = 2; i < argc; i++) {
         if (strcmp(argv[i], lexer_output_arg) == 0) {
             print_lexer_output = 1;
         }
