@@ -1583,6 +1583,8 @@ int main(int argc, char* argv[]) {
     
     /* ==== PRINTING CLI ARGS ==== */
     
+    // @TODO accept input filename from command line
+    
     char * lexer_output_arg = "-l";
     char * parser_output_arg = "-a";
     char * vm_execution_trace_arg = "-v";
