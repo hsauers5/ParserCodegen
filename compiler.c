@@ -613,6 +613,8 @@ int get_token(void) {
     wordy val = word_list[token_counter];
     token_counter += 1;
     
+    printf("%s\n", val.lexeme);
+    
     if (is_valid_token(val)) {
         return val.token_type;
     }
@@ -757,15 +759,13 @@ int parser_block() {
     while (TOKEN == procsym) {
         TOKEN = get_token();
         if (TOKEN != identsym) {
-            // @TODO error
-            printf("\nError identsym expected\n");
+            error(2);
             return 0;
         }
 
         TOKEN = get_token();
         if (TOKEN != semicolonsym) {
-            // @TODO error
-            printf("\nError semicolonsym expected\n");
+            error(5);
             return 0;
         }
 
@@ -774,8 +774,7 @@ int parser_block() {
         parser_block();
 
         if (TOKEN != semicolonsym) {
-            // @TODO error
-            printf("\nError semicolonsym expected\n");
+            error(5);
             return 0;
         }
 
@@ -803,8 +802,7 @@ int parser_statement() {
     else if (TOKEN == callsym) {
         TOKEN = get_token();
         if (TOKEN != identsym) {
-            // @TODO error
-            printf("\n Error identsym expected\n");
+            error(2);
             return 0;
         }
         TOKEN = get_token();
@@ -849,6 +847,18 @@ int parser_statement() {
         parser_statement();
 		emit(7, 0, 0, cx1, assembly_array);
 		assembly_array[cx2].M = cx;
+    }
+    // write @TODO
+    else if (TOKEN == writesym) {
+        TOKEN = get_token();
+        parser_expression();
+        emit(9, 0, 0, 1, assembly_array);
+    }
+    // read @TODO
+    else if (TOKEN == readsym) {
+        // no idea what I'm doing here
+        TOKEN = get_token();
+        emit(10, 0, 0, 1, assembly_array); // 1 or 2 for m?
     }
 }
 
@@ -1319,23 +1329,6 @@ int read_in(FILE * fp, instruction * text) {
 	return lines_of_text;
 }
 
-/*
-char * dynamic_strcat(char * base, char * added) {
-	// resize the base String
-	char * conjoined = (char *)malloc(strlen(base) + strlen(added) + 1);
-
-	if (conjoined == NULL) {
-		printf("Error: failed to create char array.\n");
-		return NULL;
-	}
-
-	// strcat and go
-	strcpy(conjoined, base);
-
-	return strcat(conjoined, added);
-}
-*/
-
 void update_output_one(char * OP, int R, int L, int M, int i) {
 	char tmp[3];
 	output_one[i] = dynamic_strcat(output_one[i], OP);
@@ -1564,7 +1557,7 @@ char * get_symbolic_representation(int token_type) {
 
 int main(int argc, char* argv[]) {
 
-    // @TODO accept input filename from command line
+    // accept input filename from command line
     char * file_name = argv[1];
     INPUT_FILE = file_name;
     
