@@ -1,1 +1,8 @@
-
+var else, call, procedure;
+begin
+else:= 4;
+procedure := 5;
+call := 1;
+if call > else then call:= call + 1;
+write call;
+end.
