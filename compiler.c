@@ -848,11 +848,11 @@ int parser_statement() {
 		emit(7, 0, 0, cx1, assembly_array);
 		assembly_array[cx2].M = cx;
     }
-    // write @TODO
+    // write
     else if (TOKEN == writesym) {
         TOKEN = get_token();
         parser_expression();
-        emit(9, 0, 0, 1, assembly_array);
+        emit(9, reg_counter, 0, 1, assembly_array);
     }
     // read @TODO
     else if (TOKEN == readsym) {
