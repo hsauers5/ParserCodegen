@@ -854,11 +854,16 @@ int parser_statement() {
         parser_expression();
         emit(9, reg_counter, 0, 1, assembly_array);
     }
-    // read @TODO
+    // read
     else if (TOKEN == readsym) {
         // no idea what I'm doing here
         TOKEN = get_token();
-        emit(10, 0, 0, 1, assembly_array); // 1 or 2 for m?
+        emit(10, reg_counter, 0, 1, assembly_array); // 1 or 2 for m?
+			if (TOKEN != identsym) 
+				error(2);
+			loc = find_in_symbol_table(word_list[token_counter - 1].lexeme);
+			// emit a LOD, reg_counter, L, M, ass
+			emit(3, reg_counter, symbol_table[loc].level, symbol_table[loc].addr, assembly_array);	// lod
     }
 }
 
@@ -885,7 +890,7 @@ int parser_expression() {
         parser_term();
         
         if (addop == minussym) {
-            emit(12, reg_counter, 0, 1, assembly_array); // @TODO 2nd arg is register
+            emit(12, reg_counter, 0, 1, assembly_array);
         }
     } else {
         parser_term();
@@ -899,9 +904,9 @@ int parser_expression() {
 			reg_counter--;
         
         if (addop == plussym) {
-            emit(13, reg_counter, reg_counter, reg_counter + 1, assembly_array); // @TODO 2nd arg is register
+            emit(13, reg_counter, reg_counter, reg_counter + 1, assembly_array);
         } else {
-            emit(14, reg_counter, reg_counter, reg_counter + 1, assembly_array); // @TODO 2nd arg is register
+            emit(14, reg_counter, reg_counter, reg_counter + 1, assembly_array);
         }
     }
 }
@@ -918,9 +923,9 @@ int parser_term() {
 		reg_counter--;
         
         if (TOKEN == multsym) {
-            emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
+            emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array);
         } else {
-            emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
+            emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array);
         }
     }
 }
