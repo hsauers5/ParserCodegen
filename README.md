@@ -6,7 +6,7 @@ Instructions:
 
 2. Compile the compiler: ```gcc compiler.c```
 
-3. Run the compiler: ```./a.out [ARGS]```
+3. Run the compiler: ```./a.out [FILENAME] [ARGS]```
 
 * Args are optional, and are the following compiler directives:
 

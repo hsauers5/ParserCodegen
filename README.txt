@@ -9,7 +9,7 @@ Instructions:
     gcc compiler.c
 
 3. Run the compiler: 
-    ./a.out [ARGS]
+    ./a.out [FILENAME] [ARGS]
 
 * Args are optional, and are the following compiler directives:
 
