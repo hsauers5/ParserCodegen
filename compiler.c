@@ -613,7 +613,7 @@ int get_token(void) {
     wordy val = word_list[token_counter];
     token_counter += 1;
     
-    printf("%s\n", val.lexeme);
+    // printf("%s\n", val.lexeme);
     
     if (is_valid_token(val)) {
         return val.token_type;
