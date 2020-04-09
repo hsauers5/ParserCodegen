@@ -22,8 +22,10 @@ Structure:
 
 /* Catch Errors & Exit Program for Parser */
 
+int HAS_ERROR = 0;
 void error(int err) {
-    int exit_program = 1;
+    HAS_ERROR = 1;
+    int exit_program = 0; // 1 to exit, 0 to not
     
     switch(err) {
         case 1:
@@ -482,14 +484,14 @@ int lex_main(void) {
                 if (is_only_numbers(current_word)) {
                     token = numbersym;
                 } else {
-                    printf("%s", current_word);
+                    // printf("%s", current_word);
                     MalformedNumberError();
                 }
                 
                 // check strlen <= 5: if true, we're good. else: NumberTooBigError(), return/exit
                 if (is_word_too_big(current_word, 5)) {
                 
-                    printf("%s", current_word);
+                    // printf("%s", current_word);
                     NumberTooBigError();
                 }
             }
@@ -500,7 +502,7 @@ int lex_main(void) {
                 if (is_word_too_big(current_word, 11)) {
                     // if true: nothing (see below) else: StringTooLongError(), return/exit
                     
-                    printf("%s", current_word);
+                    // printf("%s", current_word);
                     StringTooLongError();   
                 }
                 
@@ -510,7 +512,7 @@ int lex_main(void) {
                     token = identsym;
                 } else {
                 
-                    printf("%s", current_word);
+                    // printf("%s", current_word);
                     MalformedStringError();
                 }
             } else if (is_special_symbol(current_word[0]) == 0){
@@ -619,7 +621,9 @@ int get_token(void) {
         return val.token_type;
     }
     
-    printf("\nAAAAA! Invalid token!\n");
+    // printf("\nAAAAA! Invalid token!\n");
+    
+    return 0;
 }
 
 int is_relation(int check_token) {
@@ -648,7 +652,9 @@ int loc, loc_two;
 int TOKEN;
 int parser(void) {    
     parser_program();
-    printf("No errors, program is syntactically correct");
+    if (HAS_ERROR == 0) {
+        printf("No errors, program is syntactically correct");   
+    }
 }
 
 int parser_program() {
@@ -1300,7 +1306,10 @@ int do_operation(instruction instr) {
             // SIO, R, 0, 1
             // Write top of stack to screen
             // pop? peek? who knows
+
             printf("%d", REG[SP]);
+            // stack[SP] = REG[R];
+            
             // SP += 1;
             break;
         case 10:
@@ -1464,7 +1473,7 @@ char * ins_to_string(instruction ins, int i) {
 			printf("literally not possible");
 	}
 	// function the rest
-		update_output_one(tmp, ins.R, ins.L, ins.M, i);
+	update_output_one(tmp, ins.R, ins.L, ins.M, i);
 
 	return output_one[i];
 }
@@ -1602,6 +1611,14 @@ int main(int argc, char* argv[]) {
         if (strcmp(argv[i], vm_execution_trace_arg) == 0) {
             print_vm_trace = 1;
         }
+    }
+    
+    // === If program has error, don't continue w/ execution
+    
+    if (HAS_ERROR == 1) {
+        print_lexer_output = 1;
+        print_parser_output = 0;
+        print_vm_trace = 0;
     }
     
     if (print_lexer_output) {
