@@ -1714,7 +1714,9 @@ int main(int argc, char* argv[]) {
     }
     
     // run on VM
-    vm_main();
+    if (HAS_ERROR == 0) {
+        vm_main();
+    }
     
     if (print_vm_trace) {
         printf("\n\nVM Execution Trace: \n");
