@@ -600,7 +600,8 @@ typedef struct {
 } symbol; 
 symbol symbol_table[MAX_SYMBOL_TABLE_SIZE];
 int tp = 1; // 0 is sentinel: tp = table pointer.
-int num_of_vars = 0;	// temporary solution to variable index
+int num_of_vars [MAX_SYMBOL_TABLE_SIZE];	// temporary solution to variable index
+int num_vars_to_remove;
 
 int is_valid_token(wordy check_token) {
     if (check_token.token_type >= 0 && check_token.token_type <= 33) {
@@ -642,6 +643,7 @@ int parser_expression();
 int parser_term();
 int parser_factor();
 int find_in_symbol_table(char * name);
+int mark_the_table(int lex_level);
 
 int cx = 0;
 int ctemp, cx1, cx2;
@@ -658,8 +660,14 @@ int parser(void) {
 }
 
 int parser_program() {
+
+	// initialize num_of_vars array
+	int i;
+	for (i = 0; i < MAX_SYMBOL_TABLE_SIZE; i++)
+		num_of_vars[i] = 0;
+
     TOKEN = get_token();
-    parser_block();
+    parser_block(0);
     
     TOKEN = get_token();
     
@@ -669,7 +677,7 @@ int parser_program() {
 	emit(11,0,0,3, assembly_array);	// end of program
 }
 
-int parser_block() {
+int parser_block(int lex_level) {
 	emit(6,0,0,4, assembly_array);	// first init
 
     if (TOKEN == constsym) {
@@ -697,6 +705,8 @@ int parser_block() {
                 return 0;
             }
 			symbol_table[tp].val = TOKEN;
+			symbol_table[tp].level = 0;
+			symbol_table[tp].addr = 0;
           symbol_table[tp].mark = 0;
 			tp++;
 
@@ -722,11 +732,11 @@ int parser_block() {
 			}
 			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
 			symbol_table[tp].val = 0;
-			symbol_table[tp].level = 0;
-			symbol_table[tp].addr = num_of_vars + 4; // 4 for SL, DL, RA, FV.
+			symbol_table[tp].level = lex_level;
+			symbol_table[tp].addr = num_of_vars[lex_level] + 4; // 4 for SL, DL, RA, FV.
 			symbol_table[tp].mark = 0;
 			tp++;
-			num_of_vars++;
+			num_of_vars[lex_level]++;
 
 			TOKEN = get_token();
 			emit(6,0,0,1, assembly_array);		// create a new variable in the stack
@@ -763,12 +773,18 @@ int parser_block() {
     
     // @TODO NEW =============================================================================================
     while (TOKEN == procsym) {
+		symbol_table[tp].kind = 3; // 3 for procedure
         TOKEN = get_token();
         if (TOKEN != identsym) {
             error(2);
             return 0;
         }
-
+			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
+			symbol_table[tp].val = 0;
+			symbol_table[tp].level = lex_level;
+			symbol_table[tp].addr = 0;
+			symbol_table[tp].mark = 0;
+			tp++;
         TOKEN = get_token();
         if (TOKEN != semicolonsym) {
             error(5);
@@ -777,7 +793,11 @@ int parser_block() {
 
         TOKEN = get_token();
 
-        parser_block();
+		// enter the new block with lex level one higher
+        parser_block(lex_level+1);
+		// exit the block by marking all "deleted" variables
+		num_vars_to_remove = mark_the_table(lex_level);
+		num_of_vars[lex_level + 1] = num_vars_to_remove;
 
         if (TOKEN != semicolonsym) {
             error(5);
@@ -1002,6 +1022,20 @@ int find_in_symbol_table(char * name) {
 		}
 	}
 	error(14);
+}
+
+int mark_the_table(int lex_level) {
+	// passes the level one lower than the one we're removing
+	int seek = tp;
+	int ret = 0;
+
+	while (symbol_table[seek].level < lex_level) {
+		symbol_table[seek].mark = 1;
+		ret++;
+		seek--;
+	}
+
+	return ret;
 }
 
 int codegen(void) {
