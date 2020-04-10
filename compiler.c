@@ -927,7 +927,7 @@ int parser_expression() {
         parser_term();
         
         if (addop == minussym) {
-            emit(12, reg_counter, 0, 1, assembly_array); // @TODO 2nd arg is register
+            emit(12, reg_counter, 0, 1, assembly_array); 
         }
     } else {
         parser_term();
@@ -941,9 +941,9 @@ int parser_expression() {
 			reg_counter--;
         
         if (addop == plussym) {
-            emit(13, reg_counter, reg_counter, reg_counter + 1, assembly_array); // @TODO 2nd arg is register
+            emit(13, reg_counter, reg_counter, reg_counter + 1, assembly_array); 
         } else {
-            emit(14, reg_counter, reg_counter, reg_counter + 1, assembly_array); // @TODO 2nd arg is register
+            emit(14, reg_counter, reg_counter, reg_counter + 1, assembly_array); 
         }
     }
 }
@@ -960,9 +960,9 @@ int parser_term() {
 		reg_counter--;
         
         if (TOKEN == multsym) {
-            emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
+            emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array); 
         } else if (TOKEN == slashsym) {
-            emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
+            emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array); 
         }
     }
 }
