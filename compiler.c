@@ -116,7 +116,7 @@ char * program_string = "";
 // dynamic strcat
 char * dynamic_strcat(char * base, char * added) {
     // resize the base String
-    char * conjoined = (char *)malloc(strlen(base) + strlen(added) + 1);
+    char * conjoined = (char *) malloc(strlen(base) + strlen(added) + 1);
 
     if (conjoined == NULL) {
         printf("Error: failed to create char array.\n");
@@ -278,11 +278,17 @@ int lex_main(void) {
     // and copy to output file
     char temp_char = fgetc(fp);
     while (temp_char != EOF) {
-        program_string = dynamic_strcat(program_string, &temp_char);
+
+        char tmp[2];
+        tmp[0] = temp_char;
+        
+        program_string = dynamic_strcat(program_string, tmp);
         
         fputc(temp_char, out);
         temp_char = fgetc(fp);
     }
+    
+    // printf("\n\n%s\n\n===================\n\n", program_string);
     
     // while we read it
     int i = 0;
@@ -337,16 +343,18 @@ int lex_main(void) {
         // build word
         current_word = (char *) calloc(2, sizeof(char));
         current_word[0] = c;
-        int j = i + 1;  
+        int j = i + 1;
         
         if (is_special_symbol(current_word[0]) == 0) {
             while ( (is_invisible_char(program_string[j]) == 0) && (is_special_symbol(program_string[j]) == 0) && j < program_length) {
                 char new[2];
+                
                 sprintf(new, "%c", program_string[j]);
+                
                 current_word = dynamic_strcat(current_word, new);
                 j += 1;
             }
-        }        
+        }
         
         // check for special characters
         if (is_special_symbol(c)) {
@@ -502,7 +510,7 @@ int lex_main(void) {
                 if (is_word_too_big(current_word, 11)) {
                     // if true: nothing (see below) else: StringTooLongError(), return/exit
                     
-                    // printf("%s", current_word);
+                    printf("%s", current_word);
                     StringTooLongError();   
                 }
                 
@@ -655,7 +663,7 @@ int TOKEN;
 int parser(void) {    
     parser_program();
     if (HAS_ERROR == 0) {
-        printf("No errors, program is syntactically correct");   
+        printf("No errors, program is syntactically correct.\n");   
     }
 }
 
@@ -953,7 +961,7 @@ int parser_term() {
         
         if (TOKEN == multsym) {
             emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
-        } else {
+        } else if (TOKEN == slashsym) {
             emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array); // @TODO 2nd arg is register
         }
     }
@@ -1279,7 +1287,9 @@ int do_operation(instruction instr) {
 	tabless_str = convert_tabs_to_spaces(output_one[PC-1]);
 	output_two = dynamic_strcat(output_two, tabless_str);
 	output_two = dynamic_strcat(output_two, "\t");
-
+	
+    // printf("%d\n", operation);
+    
     switch(operation) {
         case 01:
             // LIT, R, 0, M
@@ -1344,7 +1354,7 @@ int do_operation(instruction instr) {
             // Write top of stack to screen
             // pop? peek? who knows
 
-            printf("%d", REG[SP]);
+            printf("%d", REG[SP]); // @TODO what ???
             // stack[SP] = REG[R];
             
             // SP += 1;
@@ -1628,7 +1638,6 @@ int main(int argc, char* argv[]) {
     codegen();
     
     // printf("VM\n");
-    vm_main();
     
     /* ==== PRINTING CLI ARGS ==== */
     
@@ -1656,6 +1665,9 @@ int main(int argc, char* argv[]) {
         print_lexer_output = 1;
         print_parser_output = 0;
         print_vm_trace = 0;
+    } else {
+        // print generated code
+        print_parser_output = 1;
     }
     
     if (print_lexer_output) {
@@ -1701,6 +1713,9 @@ int main(int argc, char* argv[]) {
         printf("\n");
     }
     
+    // run on VM
+    vm_main();
+    
     if (print_vm_trace) {
         printf("\n\nVM Execution Trace: \n");
         printf("======================================\n");
@@ -1714,6 +1729,8 @@ int main(int argc, char* argv[]) {
         
         printf("\n");
     }
+    
+    printf("\n");
     
     free(word_list);
 }
