@@ -616,7 +616,7 @@ int get_token(void) {
     wordy val = word_list[token_counter];
     token_counter += 1;
     
-    // printf("%s\n", val.lexeme);
+  //   printf("%s\n", val.lexeme);
     
     if (is_valid_token(val)) {
         return val.token_type;
@@ -714,7 +714,7 @@ int parser_block(int lex_level) {
         } while (TOKEN == commasym);
         
         if (TOKEN != semicolonsym) {
-            
+            printf("const error");
                 error(5);
             return 0;
         }
@@ -743,7 +743,7 @@ int parser_block(int lex_level) {
 		} while (TOKEN == commasym);
 
 		if (TOKEN != semicolonsym) {
-				    
+				                printf("var error");
                     error(5);
 				    return 0;
 				}
@@ -764,7 +764,7 @@ int parser_block(int lex_level) {
         } while (TOKEN == commasym);
 
         if (TOKEN != semicolonsym) {
-            
+                        printf("number error");
             error(5);
             return 0;
         }
@@ -787,6 +787,7 @@ int parser_block(int lex_level) {
 			tp++;
         TOKEN = get_token();
         if (TOKEN != semicolonsym) {
+			            printf("proc error");
             error(5);
             return 0;
         }
@@ -795,11 +796,13 @@ int parser_block(int lex_level) {
 
 		// enter the new block with lex level one higher
         parser_block(lex_level+1);
+		TOKEN = get_token();
 		// exit the block by marking all "deleted" variables
 		num_vars_to_remove = mark_the_table(lex_level);
 		num_of_vars[lex_level + 1] = num_vars_to_remove;
 
         if (TOKEN != semicolonsym) {
+			            printf("proc error 2?");
             error(5);
             return 0;
         }
