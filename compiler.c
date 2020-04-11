@@ -646,10 +646,10 @@ int is_relation(int check_token) {
 int parser_program();
 int parser_block();
 int parser_statement(int lex_level);
-int parser_condition();
-int parser_expression();
-int parser_term();
-int parser_factor();
+int parser_condition(int lex_level);
+int parser_expression(int lex_level);
+int parser_term(int lex_level);
+int parser_factor(int lex_level);
 int find_in_symbol_table(char * name);
 int mark_the_table(int lex_level);
 
@@ -840,7 +840,7 @@ int parser_statement(int lex_level) {
             return 0;
         }
         TOKEN = get_token();
-        parser_expression();
+        parser_expression(lex_level);
 			int delta_level = lex_level - symbol_table[loc_two].level;
 			emit(4, 0, delta_level, symbol_table[loc_two].addr, assembly_array);
     }
@@ -870,7 +870,7 @@ int parser_statement(int lex_level) {
     }
     else if (TOKEN == ifsym) {
         TOKEN = get_token();
-        parser_condition();
+        parser_condition(lex_level);
         if (TOKEN != thensym) {
             error(8);
             return 0;
@@ -884,7 +884,7 @@ int parser_statement(int lex_level) {
     else if (TOKEN == whilesym) {
 		cx1 = cx;
         TOKEN = get_token();
-        parser_condition();
+        parser_condition(lex_level);
 		cx2 = cx;
 		emit(8, 0, 0, 0, assembly_array);	//jpc
         if (TOKEN != dosym) {
@@ -900,7 +900,7 @@ int parser_statement(int lex_level) {
     // write
     else if (TOKEN == writesym) {
         TOKEN = get_token();
-        parser_expression();
+        parser_expression(lex_level);
         emit(9, reg_counter, 0, 1, assembly_array);
     }
     // read
@@ -916,40 +916,40 @@ int parser_statement(int lex_level) {
     }
 }
 
-int parser_condition() {
+int parser_condition(int lex_level) {
     if (TOKEN == oddsym) {
         TOKEN = get_token();
-        parser_expression();
+        parser_expression(lex_level);
     } else {
-        parser_expression();
+        parser_expression(lex_level);
         if (! is_relation(TOKEN)) {
             error(10);
             return 0;
         }
         TOKEN = get_token();
-        parser_expression();
+        parser_expression(lex_level);
     }
 }
 
-int parser_expression() {
+int parser_expression(int lex_level) {
     int addop;
     if (TOKEN == plussym || TOKEN == minussym) {
         addop = TOKEN;
         TOKEN = get_token();
-        parser_term();
+        parser_term(lex_level);
         
         if (addop == minussym) {
             emit(12, reg_counter, 0, 1, assembly_array); 
         }
     } else {
-        parser_term();
+        parser_term(lex_level);
     }
     
     while (TOKEN == plussym || TOKEN == minussym) {
         addop = TOKEN;
         TOKEN = get_token();
 			reg_counter++;
-        parser_term();
+        parser_term(lex_level);
 			reg_counter--;
         
         if (addop == plussym) {
@@ -960,15 +960,15 @@ int parser_expression() {
     }
 }
 
-int parser_term() {
+int parser_term(int lex_level) {
     int mulop;
-    parser_factor();
+    parser_factor(lex_level);
     
     while (TOKEN == multsym || TOKEN == slashsym) {
         mulop = TOKEN;
         TOKEN = get_token();
 		reg_counter++;
-        parser_factor();
+        parser_factor(lex_level);
 		reg_counter--;
         
         if (TOKEN == multsym) {
@@ -980,14 +980,15 @@ int parser_term() {
 }
 
 // @TODO finish this
-int parser_factor() {
+int parser_factor(int lex_level) {
 //    while ((TOKEN==identsym) || (TOKEN==numbersym) || (TOKEN==lparentsym)) {
         if (TOKEN == identsym) {
 			// find the l and m from the symbol table
 			loc = find_in_symbol_table(word_list[token_counter - 1].lexeme);
 			// emit a LOD, reg_counter, L, M, ass
+			int delta_level = lex_level - symbol_table[loc].level;
 			if (symbol_table[loc].kind == 2) {	// if its a variable
-				emit(3, reg_counter, symbol_table[loc].level, symbol_table[loc].addr, assembly_array);	// lod
+				emit(3, reg_counter, delta_level, symbol_table[loc].addr, assembly_array);	// lod
 			} else {
 				emit(1, reg_counter, 0, symbol_table[loc].val, assembly_array);
 			}
@@ -998,7 +999,7 @@ int parser_factor() {
         } else if (TOKEN == lparentsym) {
             TOKEN = get_token();
 				reg_counter++;
-            parser_expression();
+            parser_expression(lex_level);
 				reg_counter--;
 
             if (TOKEN != rparentsym) {
