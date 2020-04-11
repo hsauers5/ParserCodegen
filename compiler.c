@@ -645,7 +645,7 @@ int is_relation(int check_token) {
 
 int parser_program();
 int parser_block();
-int parser_statement();
+int parser_statement(int lex_level);
 int parser_condition();
 int parser_expression();
 int parser_term();
@@ -657,7 +657,7 @@ int cx = 0;
 int ctemp, cx1, cx2;
 
 int reg_counter;
-int loc, loc_two;
+int loc, loc_two, loc_three;
 
 int TOKEN;
 int parser(void) {    
@@ -686,7 +686,7 @@ int parser_program() {
 }
 
 int parser_block(int lex_level) {
-	emit(6,0,0,4, assembly_array);	// first init
+//	emit(6,0,0,4, assembly_array);	// first init
 
     if (TOKEN == constsym) {
         do {
@@ -712,7 +712,7 @@ int parser_block(int lex_level) {
                 error(4);
                 return 0;
             }
-			symbol_table[tp].val = TOKEN;
+			symbol_table[tp].val = atoi(word_list[token_counter - 1].lexeme);
 			symbol_table[tp].level = 0;
 			symbol_table[tp].addr = 0;
           symbol_table[tp].mark = 0;
@@ -747,7 +747,7 @@ int parser_block(int lex_level) {
 			num_of_vars[lex_level]++;
 
 			TOKEN = get_token();
-			emit(6,0,0,1, assembly_array);		// create a new variable in the stack
+//			emit(6,0,0,1, assembly_array);		// create a new variable in the stack
 		} while (TOKEN == commasym);
 
 		if (TOKEN != semicolonsym) {
@@ -758,6 +758,7 @@ int parser_block(int lex_level) {
 				
 				TOKEN = get_token();
 			}
+		emit(6, 0, 0, 4+num_of_vars[lex_level], assembly_array);
 
     if (TOKEN == numbersym) {
         do {
@@ -790,7 +791,7 @@ int parser_block(int lex_level) {
 			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
 			symbol_table[tp].val = 0;
 			symbol_table[tp].level = lex_level;
-			symbol_table[tp].addr = 0;
+			symbol_table[tp].addr = cx + 1;
 			symbol_table[tp].mark = 0;
 			tp++;
         TOKEN = get_token();
@@ -803,12 +804,19 @@ int parser_block(int lex_level) {
         TOKEN = get_token();
 
 		// enter the new block with lex level one higher
+		int ctemp_proc = cx;
+		emit(7, 0, 0, 0, assembly_array);	// jump past the procedure
+
         parser_block(lex_level+1);
-		TOKEN = get_token();
+
+		assembly_array[ctemp_proc].M = cx + 1;
+		emit(2, 0, 0, 0, assembly_array);	// return after done with procedure
+
 		// exit the block by marking all "deleted" variables
 		num_vars_to_remove = mark_the_table(lex_level);
-		num_of_vars[lex_level + 1] = num_vars_to_remove;
+		num_of_vars[lex_level + 1] -= num_vars_to_remove;
 
+		TOKEN = get_token();
         if (TOKEN != semicolonsym) {
 			            printf("proc error 2?");
             error(5);
@@ -818,10 +826,10 @@ int parser_block(int lex_level) {
         TOKEN = get_token();
     }
     
-    parser_statement();
+    parser_statement(lex_level);
 }
 
-int parser_statement() {
+int parser_statement(int lex_level) {
 	reg_counter = 0;
     if (TOKEN == identsym) {
 		loc_two = find_in_symbol_table(word_list[token_counter - 1].lexeme);
@@ -833,7 +841,8 @@ int parser_statement() {
         }
         TOKEN = get_token();
         parser_expression();
-			emit(4, 0, symbol_table[loc_two].level, symbol_table[loc_two].addr, assembly_array);
+			int delta_level = lex_level - symbol_table[loc_two].level;
+			emit(4, 0, delta_level, symbol_table[loc_two].addr, assembly_array);
     }
     // @TODO NEW ==========================================================================================
     else if (TOKEN == callsym) {
@@ -842,14 +851,17 @@ int parser_statement() {
             error(2);
             return 0;
         }
+		loc_three = find_in_symbol_table(word_list[token_counter - 1].lexeme);
+		// want to emit call to the proc's cx, which is stored in symbol_table.addr
+		emit(5, 0, symbol_table[loc_three].level, symbol_table[loc_three].addr, assembly_array);
         TOKEN = get_token();
     }
     else if (TOKEN == beginsym) {
         TOKEN = get_token();
-        parser_statement();
+        parser_statement(lex_level);
         while (TOKEN == semicolonsym) {
             TOKEN = get_token();
-            parser_statement();
+            parser_statement(lex_level);
         }
         if (TOKEN != endsym) {
             error(7);
@@ -866,7 +878,7 @@ int parser_statement() {
         TOKEN = get_token();
 		ctemp = cx;
 		emit(8, 0, 0, 0, assembly_array); //jpc
-        parser_statement();
+        parser_statement(lex_level);
 		assembly_array[ctemp].M = cx;
     }
     else if (TOKEN == whilesym) {
@@ -881,7 +893,7 @@ int parser_statement() {
             return 0;
         }
         TOKEN = get_token();
-        parser_statement();
+        parser_statement(lex_level);
 		emit(7, 0, 0, cx1, assembly_array);
 		assembly_array[cx2].M = cx;
     }
@@ -1029,6 +1041,7 @@ int find_in_symbol_table(char * name) {
 	for (seek = tp; seek > 0; seek--) {
 		if (symbol_table[seek].mark == 0 &&
 			  strcmp(symbol_table[seek].name, name) == 0) {
+			printf("found %s at level %d.\n", symbol_table[seek].name, symbol_table[seek].level);
 			return seek;
 		}
 	}
@@ -1037,13 +1050,14 @@ int find_in_symbol_table(char * name) {
 
 int mark_the_table(int lex_level) {
 	// passes the level one lower than the one we're removing
-	int seek = tp;
+	int seek = tp - 1;
 	int ret = 0;
 
-	while (symbol_table[seek].level < lex_level) {
+	while (symbol_table[seek].level > lex_level) {
 		symbol_table[seek].mark = 1;
 		ret++;
 		seek--;
+		printf("removed %s at level %d.\n", symbol_table[seek].name, symbol_table[seek].level);
 	}
 
 	return ret;
