@@ -999,7 +999,7 @@ int parser_factor(int lex_level) {
 			loc = find_in_symbol_table(word_list[token_counter - 1].lexeme);
 			// emit a LOD, reg_counter, L, M, ass
 			int delta_level = lex_level - symbol_table[loc].level;
-printf("\ndelta is %d. lex lev is %d. ident lev is %d.\n\n", delta_level, lex_level, symbol_table[loc].level);
+
 			if (symbol_table[loc].kind == 2) {	// if its a variable
 				emit(3, reg_counter, delta_level, symbol_table[loc].addr, assembly_array);	// lod
 			} else {
