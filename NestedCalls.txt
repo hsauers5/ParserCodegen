@@ -1,0 +1,34 @@
+var xs,ys,zs,vs,ws;
+
+procedure a;
+  var xa,ya,ua,va;
+
+  procedure b;
+    var yb,zb,vb;
+
+    procedure c;
+      var yc,zc;
+
+      begin
+        zc:=1;
+        xa:=yc+zc+ws
+      end;
+
+    begin
+      yb:=xa+ua+ws;
+      call c
+    end;
+
+  begin
+    zs:=2;
+    ua:=zs+ws;
+    call b
+  end;
+
+begin
+  xs:=1; ys:=2; zs:=3; vs:=4; ws:=5;
+  xs:=vs+ws;
+  write zs;
+  call a;
+  write xs;
+end.
