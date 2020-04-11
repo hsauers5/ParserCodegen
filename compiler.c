@@ -651,6 +651,7 @@ int parser_expression(int lex_level);
 int parser_term(int lex_level);
 int parser_factor(int lex_level);
 int find_in_symbol_table(char * name);
+char  * find_first_occurence(int type);
 int mark_the_table(int lex_level);
 int find_relation_value(int relation);
 
@@ -791,7 +792,7 @@ int parser_block(int lex_level) {
         }
 			strcpy(symbol_table[tp].name, word_list[token_counter - 1].lexeme);
 			symbol_table[tp].val = 0;
-			symbol_table[tp].level = lex_level;
+			symbol_table[tp].level = 0;
 			symbol_table[tp].addr = cx + 1;
 			symbol_table[tp].mark = 0;
 			tp++;
@@ -854,8 +855,16 @@ int parser_statement(int lex_level) {
         }
 		loc_three = find_in_symbol_table(word_list[token_counter - 1].lexeme);
 		// want to emit call to the proc's cx, which is stored in symbol_table.addr
-		emit(5, 0, lex_level, symbol_table[loc_three].addr, assembly_array);
+
+		// if its a recursive call
+		if (strcmp(find_first_occurence(3), symbol_table[loc_three].name) == 0) {
+			emit(5, 0, lex_level, symbol_table[loc_three].addr, assembly_array);
+		} else {
+			emit(5, 0, symbol_table[loc_three].level, symbol_table[loc_three].addr, assembly_array);
+
+		}
 //symbol_table[loc_three].level
+//lex_level
         TOKEN = get_token();
     }
     else if (TOKEN == beginsym) {
@@ -1060,6 +1069,16 @@ int find_in_symbol_table(char * name) {
 	}
 	printf("%s\n", name);
 	error(14);
+}
+
+char  * find_first_occurence(int type)	{	//var, const, proc
+	int seek = tp - 1;
+	
+	while (symbol_table[seek].kind != type) {
+		seek--;
+	}
+
+	return symbol_table[seek].name;
 }
 
 int mark_the_table(int lex_level) {
