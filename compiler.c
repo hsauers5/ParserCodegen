@@ -652,6 +652,7 @@ int parser_term(int lex_level);
 int parser_factor(int lex_level);
 int find_in_symbol_table(char * name);
 int mark_the_table(int lex_level);
+int find_relation_value(int relation);
 
 int cx = 0;
 int ctemp, cx1, cx2;
@@ -926,8 +927,18 @@ int parser_condition(int lex_level) {
             error(10);
             return 0;
         }
+		// this whole thing is because enum eqlsym is NOT the same as emit EQL
+		int relation = word_list[token_counter -1].token_type;
+		relation = find_relation_value(relation);
+//		printf("\n\n\n\t\ttoken type is %d\n\n\n", relation);
         TOKEN = get_token();
+		reg_counter++;
         parser_expression(lex_level);
+		reg_counter--;
+		// compare the two generated statements
+		// 0 in the register means that we SKIP the then statement
+		// anything else means we do the then statement
+		emit(relation, reg_counter, reg_counter, reg_counter + 1, assembly_array);
     }
 }
 
@@ -987,6 +998,7 @@ int parser_factor(int lex_level) {
 			loc = find_in_symbol_table(word_list[token_counter - 1].lexeme);
 			// emit a LOD, reg_counter, L, M, ass
 			int delta_level = lex_level - symbol_table[loc].level;
+printf("\ndelta is %d. lex lev is %d. ident lev is %d.\n\n", delta_level, lex_level, symbol_table[loc].level);
 			if (symbol_table[loc].kind == 2) {	// if its a variable
 				emit(3, reg_counter, delta_level, symbol_table[loc].addr, assembly_array);	// lod
 			} else {
@@ -1042,7 +1054,6 @@ int find_in_symbol_table(char * name) {
 	for (seek = tp; seek > 0; seek--) {
 		if (symbol_table[seek].mark == 0 &&
 			  strcmp(symbol_table[seek].name, name) == 0) {
-			printf("found %s at level %d.\n", symbol_table[seek].name, symbol_table[seek].level);
 			return seek;
 		}
 	}
@@ -1058,10 +1069,26 @@ int mark_the_table(int lex_level) {
 		symbol_table[seek].mark = 1;
 		ret++;
 		seek--;
-		printf("removed %s at level %d.\n", symbol_table[seek].name, symbol_table[seek].level);
 	}
 
 	return ret;
+}
+
+int find_relation_value(int relation) {
+	switch (relation) {
+	case eqlsym:
+			return 19;
+	case neqsym:
+			return 20;
+	case lessym:
+			return 21;
+	case leqsym:
+			return 22;
+	case gtrsym:
+			return 23;
+	case geqsym:
+			return 24;
+	}
 }
 
 int codegen(void) {
