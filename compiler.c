@@ -854,7 +854,8 @@ int parser_statement(int lex_level) {
         }
 		loc_three = find_in_symbol_table(word_list[token_counter - 1].lexeme);
 		// want to emit call to the proc's cx, which is stored in symbol_table.addr
-		emit(5, 0, symbol_table[loc_three].level, symbol_table[loc_three].addr, assembly_array);
+		emit(5, 0, lex_level, symbol_table[loc_three].addr, assembly_array);
+//symbol_table[loc_three].level
         TOKEN = get_token();
     }
     else if (TOKEN == beginsym) {
@@ -982,7 +983,7 @@ int parser_term(int lex_level) {
         parser_factor(lex_level);
 		reg_counter--;
         
-        if (TOKEN == multsym) {
+        if (mulop == multsym) {
             emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array); 
         } else if (TOKEN == slashsym) {
             emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array); 
