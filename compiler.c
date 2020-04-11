@@ -985,7 +985,7 @@ int parser_term(int lex_level) {
         
         if (mulop == multsym) {
             emit(15, reg_counter, reg_counter, reg_counter+1, assembly_array); 
-        } else if (TOKEN == slashsym) {
+        } else if (mulop == slashsym) {
             emit(16, reg_counter, reg_counter, reg_counter+1, assembly_array); 
         }
     }
@@ -1397,7 +1397,7 @@ int do_operation(instruction instr) {
             // Write top of stack to screen
             // pop? peek? who knows
 
-            printf("%d", REG[SP]); // @TODO what ???
+            printf("%d", REG[R]); // @TODO what ???
             // stack[SP] = REG[R];
             
             // SP += 1;
@@ -1406,9 +1406,9 @@ int do_operation(instruction instr) {
             // SIO, R, 0, 2
             // Read in input from user and store at top of stack
             SP -= 1;
-            // read user input into stack
+            // read user input into register
             printf("Enter integer to push to stack: ");
-            scanf("%d", &REG[SP]);
+            scanf("%d", &REG[R]);
             break;
         case 11: 
             // SIO, R, 0, 3
