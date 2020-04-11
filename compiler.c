@@ -781,7 +781,7 @@ int parser_block(int lex_level) {
         TOKEN = get_token();
     }
     
-    // @TODO NEW =============================================================================================
+    // NEW =============================================================================================
     while (TOKEN == procsym) {
 		symbol_table[tp].kind = 3; // 3 for procedure
         TOKEN = get_token();
@@ -845,7 +845,7 @@ int parser_statement(int lex_level) {
 			int delta_level = lex_level - symbol_table[loc_two].level;
 			emit(4, 0, delta_level, symbol_table[loc_two].addr, assembly_array);
     }
-    // @TODO NEW ==========================================================================================
+    // NEW ==========================================================================================
     else if (TOKEN == callsym) {
         TOKEN = get_token();
         if (TOKEN != identsym) {
@@ -1058,6 +1058,7 @@ int find_in_symbol_table(char * name) {
 			return seek;
 		}
 	}
+	printf("%s\n", name);
 	error(14);
 }
 
@@ -1397,7 +1398,7 @@ int do_operation(instruction instr) {
             // Write top of stack to screen
             // pop? peek? who knows
 
-            printf("%d", REG[R]); // @TODO what ???
+            printf("%d\n", REG[R]);
             // stack[SP] = REG[R];
             
             // SP += 1;
