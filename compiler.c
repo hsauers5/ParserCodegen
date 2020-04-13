@@ -664,9 +664,6 @@ int loc, loc_two, loc_three;
 int TOKEN;
 int parser(void) {    
     parser_program();
-    if (HAS_ERROR == 0) {
-        printf("No errors, program is syntactically correct.\n");   
-    }
 }
 
 int parser_program() {
@@ -1730,6 +1727,7 @@ int main(int argc, char* argv[]) {
         print_vm_trace = 0;
     } else {
         // print generated code
+        print_lexer_output = 1;
         print_parser_output = 1;
     }
     
@@ -1774,6 +1772,11 @@ int main(int argc, char* argv[]) {
         fclose(f);
         
         printf("\n");
+    }
+    
+    
+    if (HAS_ERROR == 0) {
+        printf("No errors, program is syntactically correct.\n");   
     }
     
     // run on VM
